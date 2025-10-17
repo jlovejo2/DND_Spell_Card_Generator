@@ -10,7 +10,29 @@ async function createSpellCardsPdf() {
     const css = fs.readFileSync(path.join(__dirname, 'card_template.css'), 'utf-8');
     console.log('✅ CSS template loaded.');
 
-    // 2. Read and parse the CSV data
+    const iconMap = {
+        'Abjuration': 'abjuration.svg',
+        'Conjuration': 'conjuration.svg',
+        'Divination': 'divination.svg',
+        'Evocation': 'evocation.svg',
+        'Illusion': 'illusion.svg',
+        'Necromancy': 'necromancy.svg',
+        'Transmutation': 'transmutation.svg',
+        'Enchantment': 'enchantment.svg'
+    }
+
+    const loadedIcons = {};
+    const iconPromises = Object.entries(iconMap).map(async ([school, filename]) => {
+        try {
+            loadedIcons[school] = fs.readFileSync(path.join(__dirname, 'icons', filename), 'utf-8');
+        } catch (error) {
+            console.warn(`⚠️ Warning: Could not load icon for ${school} (${filename}). Using default empty icon.`);
+            loadedIcons[school] = ''; // Fallback to empty string if icon not found
+        }
+    });
+    await Promise.all(iconPromises); // Wait for all icons to be loaded
+    console.log('✅ Icons loaded (or attempted to load).');
+
     const spells = [];
     await new Promise((resolve, reject) => {
         fs.createReadStream(path.join(__dirname, 'spells.csv'))
@@ -40,20 +62,31 @@ const longThreshold = 250;  // Over this many characters, use the small font.
         font_class = 'font-sm'; // Small
     }
 
-        return `
-            <div class="spell-card">
-                <h2>${spell.name}</h2>
-                <div class="details"><em>${spell.level}-level ${spell.school}</em></div>
-                <div class="stats">
-                    <strong>Casting Time:</strong> ${spell.casting_time}<br>
-                    <strong>Range:</strong> ${spell.range}<br>
-                    <strong>Duration:</strong> ${spell.duration}
-                </div>
-                <div class="desc-text ${font_class}">${spell.description}</div>
-                ${upcastHtml}
-                <div class="components">Components: ${spell.components}</div>
+    const spellIcon = loadedIcons[spell.school] || '';
+
+    return `
+        <div class="spell-card">
+            <h2 class="card-header">
+                <span class="icon">${spellIcon}</span> 
+                <span class="spell-name">${spell.name}</span>
+            </h2>
+            <div class="details">
+                <span>${spell.level}-level ${spell.school}</span>
+                <span class="tags">${spell.tags && spell.tags !== 'none' ? spell.tags.toUpperCase() : ''}</span>
             </div>
-        `;
+
+
+            <div class="stats">
+                <strong>Casting Time:</strong> ${spell.casting_time}<br>
+                <strong>Range:</strong> ${spell.range}<br>
+                <strong>Duration:</strong> ${spell.duration}<br>
+                <strong>Components:</strong> ${spell.components}
+            </div>
+            <div class="desc-text ${font_class}">${spell.description}</div>
+            ${upcastHtml}
+            <div class="footer"></div>
+        </div>
+    `;
     }).join('');
 
     // 4. Combine everything into a final HTML document
