@@ -1,0 +1,48 @@
+/* Defines the layout for the page of cards */
+body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Space between cards */
+    font-family: sans-serif;
+}
+
+/* Styles for a single spell card */
+.spell-card {
+    width: 2.5in;
+    height: 3.5in;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    background-color: #fdfdfd;
+    box-sizing: border-box; /* Important for padding and border */
+}
+
+.spell-card h2 {
+    font-size: 1.1em;
+    margin: 0 0 5px 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+    color: #333;
+}
+
+.spell-card .details {
+    font-size: 0.8em;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.spell-card .description {
+    font-size: 0.9em;
+    flex-grow: 1; /* Makes the description fill available space */
+}
+
+.spell-card .components {
+    font-size: 0.8em;
+    font-weight: bold;
+    text-align: right;
+    margin-top: auto; /* Pushes to the bottom */
+}
